@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>📱 TLE – ICT Quiz</title>
+    <style>
+        /* ---------- RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .quiz-container {
+            max-width: 860px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            padding: 2rem 2.2rem 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.30),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            transition: all 0.25s ease;
+        }
+
+        /* ---------- HEADER ---------- */
+        .quiz-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem 1rem;
+            margin-bottom: 1.75rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+            padding-bottom: 1.25rem;
+        }
+
+        .quiz-title {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .quiz-title h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #0b2b44;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #0b2b44, #1a5a7a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-title span {
+            font-size: 2rem;
+            line-height: 1;
+        }
+
+        .score-badge {
+            background: #0b2b44;
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 8px rgba(11, 43, 68, 0.20);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .score-badge span {
+            font-size: 1.1rem;
+        }
+
+        /* ---------- PROGRESS ---------- */
+        .progress-wrapper {
+            margin-bottom: 2rem;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1f4a6b;
+            margin-bottom: 0.4rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #dce5ed;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2b7a9e, #4ba3c7);
+            border-radius: 20px;
+            transition: width 0.45s ease;
+        }
+
+        /* ---------- QUESTION CARD ---------- */
+        .question-card {
+            animation: fadeSlide 0.35s ease;
+        }
+
+        @keyframes fadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-text {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: #0a263b;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            padding-left: 0.15rem;
+        }
+
+        .question-text .q-num {
+            display: inline-block;
+            background: #e6eef6;
+            color: #0b2b44;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.15rem 0.85rem;
+            border-radius: 40px;
+            margin-right: 0.7rem;
+            vertical-align: middle;
+        }
+
+        /* ---------- OPTIONS ---------- */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            margin-bottom: 2rem;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 1.4rem;
+            background: #f7faff;
+            border: 2px solid #e2ecf5;
+            border-radius: 1.2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #143b55;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            width: 100%;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover:not(.disabled-opt) {
+            background: #eaf3fc;
+            border-color: #88b8d8;
+            transform: scale(1.01);
+            box-shadow: 0 6px 14px rgba(43, 122, 158, 0.10);
+        }
+
+        .option-btn .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: #dce8f2;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #0b2b44;
+            flex-shrink: 0;
+            transition: 0.15s;
+        }
+
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15);
+        }
+
+        .option-btn.correct .letter {
+            background: #28a745;
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background: #f8dddd;
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+        }
+
+        .option-btn.wrong .letter {
+            background: #dc3545;
+            color: white;
+        }
+
+        .option-btn.disabled-opt {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .option-btn.disabled-opt:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .option-btn.correct.disabled-opt {
+            opacity: 1;
+        }
+
+        /* ---------- FEEDBACK ---------- */
+        .feedback-box {
+            padding: 1rem 1.4rem;
+            border-radius: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 0.98rem;
+            display: none;
+            align-items: center;
+            gap: 0.7rem;
+            background: #f1f6fa;
+            border-left: 6px solid #4ba3c7;
+            color: #0b2b44;
+        }
+
+        .feedback-box.show {
+            display: flex;
+        }
+
+        .feedback-box .fb-icon {
+            font-size: 1.6rem;
+        }
+
+        .feedback-box.correct-fb {
+            background: #e3f5eb;
+            border-left-color: #28a745;
+        }
+
+        .feedback-box.wrong-fb {
+            background: #fce9e9;
+            border-left-color: #dc3545;
+        }
+
+        /* ---------- ACTIONS ---------- */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.7rem 2rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            background: #e2ecf5;
+            color: #0b2b44;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn-primary {
+            background: #0b2b44;
+            color: white;
+            box-shadow: 0 6px 14px rgba(11, 43, 68, 0.25);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #163e5c;
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(11, 43, 68, 0.30);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #b0c9dd;
+        }
+
+        .btn-outline:hover {
+            background: #e6eef6;
+            border-color: #7aa9c9;
+        }
+
+        .btn-success {
+            background: #1e7e34;
+            color: white;
+            box-shadow: 0 6px 14px rgba(30, 126, 52, 0.25);
+        }
+
+        .btn-success:hover {
+            background: #146c2a;
+            transform: scale(1.02);
+        }
+
+        /* ---------- RESULT SCREEN ---------- */
+        .result-screen {
+            display: none;
+            text-align: center;
+            padding: 1.5rem 0.5rem 0.5rem;
+            animation: fadeSlide 0.5s ease;
+        }
+
+        .result-screen .big-icon {
+            font-size: 4.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-screen .score-final {
+            font-size: 3.8rem;
+            font-weight: 800;
+            color: #0b2b44;
+            letter-spacing: -1px;
+        }
+
+        .result-screen .score-label {
+            font-size: 1.1rem;
+            color: #2e5779;
+            margin-top: -0.2rem;
+        }
+
+        .result-screen .result-msg {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #1a4a67;
+            margin: 1rem 0 1.8rem;
+            padding: 0.8rem 1.5rem;
+            background: #eef4fa;
+            border-radius: 60px;
+            display: inline-block;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            max-width: 400px;
+            margin: 1.2rem auto 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 0.7rem 0.2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2ecf5;
+        }
+
+        .stat-card .num {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0b2b44;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #4b6f8a;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 640px) {
+            .quiz-container {
+                padding: 1.5rem 1.2rem;
+                border-radius: 1.8rem;
+            }
+            .quiz-title h1 {
+                font-size: 1.3rem;
+            }
+            .question-text {
+                font-size: 1.1rem;
+            }
+            .option-btn {
+                padding: 0.7rem 1rem;
+                font-size: 0.92rem;
+                border-radius: 1rem;
+            }
+            .score-badge {
+                font-size: 0.8rem;
+                padding: 0.25rem 0.9rem;
+            }
+            .result-screen .score-final {
+                font-size: 2.8rem;
+            }
+            .result-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+            .btn {
+                padding: 0.6rem 1.4rem;
+                font-size: 0.85rem;
+            }
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .actions .btn {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .quiz-title h1 {
+                font-size: 1.1rem;
+            }
+            .quiz-title span {
+                font-size: 1.5rem;
+            }
+            .option-btn {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.8rem;
+                gap: 0.6rem;
+            }
+            .option-btn .letter {
+                width: 26px;
+                height: 26px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quizApp">
+        <!-- HEADER -->
+        <div class="quiz-header">
+            <div class="quiz-title">
+                <span>📱</span>
+                <h1>ICT &amp; Digital Marketing</h1>
+            </div>
+            <div class="score-badge" id="scoreBadge">
+                <span>🏆</span> <span id="scoreDisplay">0 / 0</span>
+            </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-wrapper">
+            <div class="progress-meta">
+                <span id="qProgressText">Question 1 of 20</span>
+                <span id="qPercentText">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <!-- QUESTION AREA -->
+        <div id="questionArea">
+            <div class="question-card" id="questionCard">
+                <div class="question-text" id="questionText">
+                    <span class="q-num" id="qNumLabel">Q1</span>
+                    <span id="questionBody">Loading question…</span>
+                </div>
+
+                <div class="options-grid" id="optionsContainer">
+                    <!-- options injected by JS -->
+                </div>
+
+                <div class="feedback-box" id="feedbackBox">
+                    <span class="fb-icon" id="fbIcon">💡</span>
+                    <span id="feedbackMessage">Feedback</span>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-outline" id="resetBtn" title="Start over">⟳ Restart</button>
+                    <button class="btn btn-primary" id="nextBtn" disabled>Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div class="result-screen" id="resultScreen">
+            <div class="big-icon">🎉</div>
+            <div class="score-final" id="finalScore">0</div>
+            <div class="score-label">out of <span id="totalQuestionsLabel">20</span></div>
+            <div class="result-msg" id="resultMessage">Great job!</div>
+            <div class="result-stats">
+                <div class="stat-card"><div class="num" id="statCorrect">0</div><div class="label">Correct</div></div>
+                <div class="stat-card"><div class="num" id="statWrong">0</div><div class="label">Wrong</div></div>
+                <div class="stat-card"><div class="num" id="statPercent">0%</div><div class="label">Score</div></div>
+            </div>
+            <button class="btn btn-success" id="retryBtn">⟳ Take Quiz Again</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ---------- QUIZ DATA ----------
+            const questions = [{
+                question: 'What is digital marketing?',
+                options: [
+                    'The use of electronic devices and applications to promote products and services',
+                    'Marketing that only uses print media and television',
+                    'Selling products through physical stores only',
+                    'A strategy that avoids any online presence'
+                ],
+                answer: 0
+            }, {
+                question: 'Which device is used by almost all age groups for work, study, entertainment, and online shopping?',
+                options: [
+                    'Smart TV',
+                    'Smartwatch',
+                    'Smartphone',
+                    'Desktop Computer'
+                ],
+                answer: 2
+            }, {
+                question: 'What type of online marketing uses elements such as texts, images, videos, podcasts, and other media to attract and engage audiences?',
+                options: [
+                    'Search Engine Optimization (SEO)',
+                    'Content Marketing',
+                    'Pay-Per-Click (PPC)',
+                    'Email Marketing'
+                ],
+                answer: 1
+            }, {
+                question: 'What does SEO stand for in online marketing?',
+                options: [
+                    'Social Engagement Optimization',
+                    'Search Engine Optimization',
+                    'Systematic Email Organization',
+                    'Sales and Earnings Outlook'
+                ],
+                answer: 1
+            }, {
+                question: 'Which online marketing model involves advertisers paying whenever their advertisement is clicked?',
+                options: [
+                    'Content Marketing',
+                    'Affiliate Marketing',
+                    'Pay-Per-Click (PPC)',
+                    'Email Marketing'
+                ],
+                answer: 2
+            }, {
+                question: 'What is affiliate marketing?',
+                options: [
+                    'A strategy where content creators earn money by promoting products or services',
+                    'A type of marketing that only uses email',
+                    'Marketing that focuses on search engine rankings',
+                    'A method of selling products through television ads'
+                ],
+                answer: 0
+            }, {
+                question: 'What is digital citizenship?',
+                options: [
+                    'The responsible, respectful, and safe use of technology and online platforms',
+                    'A law that regulates online transactions',
+                    'A type of online marketing strategy',
+                    'A software used for video editing'
+                ],
+                answer: 0
+            }, {
+                question: 'How many elements of digital citizenship are identified in the handout?',
+                options: [
+                    '7',
+                    '8',
+                    '9',
+                    '10'
+                ],
+                answer: 2
+            }, {
+                question: 'What is hacking?',
+                options: [
+                    'Gaining unauthorized access to computers, devices, or networks',
+                    'A legal way to test system security',
+                    'Creating software applications',
+                    'Editing videos for social media'
+                ],
+                answer: 0
+            }, {
+                question: 'What is plagiarism?',
+                options: [
+                    'Using another person\'s work, ideas, or content without proper credit',
+                    'A type of online marketing',
+                    'A legal exception for using copyrighted material',
+                    'The process of writing computer code'
+                ],
+                answer: 0
+            }, {
+                question: 'What is copyright infringement?',
+                options: [
+                    'The unauthorized use, copying, or distribution of copyrighted material',
+                    'The legal use of public domain works',
+                    'A type of digital citizenship',
+                    'The process of registering a trademark'
+                ],
+                answer: 0
+            }, {
+                question: 'Republic Act No. 10844 is also known as what?',
+                options: [
+                    'Anti-Bullying Act of 2013',
+                    'Cybercrime Prevention Act of 2012',
+                    'Department of Information and Communications Technology Act of 2015',
+                    'Data Privacy Act of 2012'
+                ],
+                answer: 2
+            }, {
+                question: 'Republic Act No. 10627, also known as the Anti-Bullying Act of 2013, criminalizes which offense?',
+                options: [
+                    'Identity theft',
+                    'Cyberbullying and related offenses',
+                    'Copyright infringement',
+                    'Hacking'
+                ],
+                answer: 1
+            }, {
+                question: 'Republic Act No. 10175 is also known as the:',
+                options: [
+                    'Electronic Commerce Act of 2000',
+                    'Data Privacy Act of 2012',
+                    'Cybercrime Prevention Act of 2012',
+                    'Internet Transactions Act of 2023'
+                ],
+                answer: 2
+            }, {
+                question: 'Republic Act No. 10173, also known as the Data Privacy Act of 2012, regulates what?',
+                options: [
+                    'Online marketing strategies',
+                    'The process of obtaining personal data from individuals',
+                    'Video editing software',
+                    'Social media advertising'
+                ],
+                answer: 1
+            }, {
+                question: 'What is a compiler in programming?',
+                options: [
+                    'A tool that converts source code into machine language',
+                    'A tool that finds and fixes errors in code',
+                    'A program used to write and edit source code',
+                    'A tool that tests program performance'
+                ],
+                answer: 0
+            }, {
+                question: 'What is a debugger used for in programming?',
+                options: [
+                    'Converting source code into machine language',
+                    'Finding and helping fix errors in code',
+                    'Combining compiled code into an executable program',
+                    'Translating assembly language into machine code'
+                ],
+                answer: 1
+            }, {
+                question: 'What is a drawing tablet used for?',
+                options: [
+                    'Creating digital drawings',
+                    'Writing and editing source code',
+                    'Testing network connections',
+                    'Organizing and managing files'
+                ],
+                answer: 0
+            }, {
+                question: 'What is a Phillips-head screwdriver used for?',
+                options: [
+                    'Tightening or removing cross-head screws',
+                    'Tightening or loosening hexagonal nuts',
+                    'Cutting wires and cables',
+                    'Removing wire insulation'
+                ],
+                answer: 0
+            }, {
+                question: 'What is a modem used for in telecommunications?',
+                options: [
+                    'Distributing Internet access and providing Wi-Fi connectivity',
+                    'Connecting devices to the Internet',
+                    'Transmitting voice communication',
+                    'Locating and tracing network cables'
+                ],
+                answer: 1
+            }, {
+                question: 'What is Microsoft Word primarily used for?',
+                options: [
+                    'Creating, editing, storing, and printing text documents',
+                    'Organizing and calculating data in rows and columns',
+                    'Creating slide presentations with text and images',
+                    'Editing and manipulating images'
+                ],
+                answer: 0
+            }, {
+                question: 'What is VLC Media Player used for?',
+                options: [
+                    'Playing many types of multimedia files',
+                    'Managing music and audio files',
+                    'Editing video clips',
+                    'Browsing the Internet'
+                ],
+                answer: 0
+            }, {
+                question: 'What is an operating system?',
+                options: [
+                    'Software that manages computer hardware, software, and applications',
+                    'A program that detects and removes viruses',
+                    'A tool used to create digital illustrations',
+                    'A device driver for printers'
+                ],
+                answer: 0
+            }, {
+                question: 'What is Adobe Photoshop used for?',
+                options: [
+                    'Creating layouts for books and magazines',
+                    'Editing, restoring, and manipulating images',
+                    'Creating vector-based logos and posters',
+                    'Editing video clips with transitions'
+                ],
+                answer: 1
+            }, {
+                question: 'What is CapCut?',
+                options: [
+                    'A professional video editor for film and TV',
+                    'A free, user-friendly video editor popular for social media content',
+                    'An online design tool for creating printed materials',
+                    'A spreadsheet program for data analysis'
+                ],
+                answer: 1
+            }];
+
+            // ---------- STATE ----------
+            let currentIndex = 0;
+            let userAnswers = new Array(questions.length).fill(null);
+            let quizCompleted = false;
+            const totalQ = questions.length;
+
+            // DOM refs
+            const questionBody = document.getElementById('questionBody');
+            const qNumLabel = document.getElementById('qNumLabel');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const feedbackBox = document.getElementById('feedbackBox');
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const fbIcon = document.getElementById('fbIcon');
+            const nextBtn = document.getElementById('nextBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const retryBtn = document.getElementById('retryBtn');
+            const progressFill = document.getElementById('progressFill');
+            const qProgressText = document.getElementById('qProgressText');
+            const qPercentText = document.getElementById('qPercentText');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const questionArea = document.getElementById('questionArea');
+            const resultScreen = document.getElementById('resultScreen');
+            const finalScore = document.getElementById('finalScore');
+            const totalQuestionsLabel = document.getElementById('totalQuestionsLabel');
+            const resultMessage = document.getElementById('resultMessage');
+            const statCorrect = document.getElementById('statCorrect');
+            const statWrong = document.getElementById('statWrong');
+            const statPercent = document.getElementById('statPercent');
+
+            // ---------- HELPERS ----------
+            function getLetter(i) {
+                return String.fromCharCode(65 + i);
+            }
+
+            function updateProgress() {
+                const answered = userAnswers.filter(a => a !== null).length;
+                const pct = Math.round((answered / totalQ) * 100);
+                progressFill.style.width = pct + '%';
+                qPercentText.textContent = pct + '%';
+                qProgressText.textContent = `Question ${currentIndex + 1} of ${totalQ}`;
+                const correct = userAnswers.filter((a, i) => a === questions[i].answer).length;
+                scoreDisplay.textContent = `${correct} / ${totalQ}`;
+            }
+
+            function renderQuestion() {
+                if (quizCompleted) return;
+                const q = questions[currentIndex];
+                questionBody.textContent = q.question;
+                qNumLabel.textContent = `Q${currentIndex + 1}`;
+
+                // Build options
+                optionsContainer.innerHTML = '';
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.setAttribute('data-index', idx);
+                    btn.innerHTML = `<span class="letter">${getLetter(idx)}</span><span>${opt}</span>`;
+
+                    // If already answered, show state
+                    const selected = userAnswers[currentIndex];
+                    if (selected !== null) {
+                        btn.classList.add('disabled-opt');
+                        if (idx === q.answer) btn.classList.add('correct');
+                        else if (idx === selected && selected !== q.answer) btn.classList.add('wrong');
+                    }
+
+                    btn.addEventListener('click', () => handleOptionClick(idx));
+                    optionsContainer.appendChild(btn);
+                });
+
+                // Show feedback if already answered
+                const selected = userAnswers[currentIndex];
+                if (selected !== null) {
+                    showFeedback(selected);
+                    nextBtn.disabled = false;
+                } else {
+                    feedbackBox.classList.remove('show', 'correct-fb', 'wrong-fb');
+                    nextBtn.disabled = true;
+                }
+
+                updateProgress();
+                // scroll to top of card on mobile
+                document.getElementById('questionCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            function handleOptionClick(idx) {
+                if (quizCompleted) return;
+                if (userAnswers[currentIndex] !== null) return; // already answered
+
+                const q = questions[currentIndex];
+                userAnswers[currentIndex] = idx;
+
+                // Disable all options & show correct/wrong
+                const btns = optionsContainer.querySelectorAll('.option-btn');
+                btns.forEach((btn, i) => {
+                    btn.classList.add('disabled-opt');
+                    if (i === q.answer) btn.classList.add('correct');
+                    else if (i === idx && idx !== q.answer) btn.classList.add('wrong');
+                });
+
+                showFeedback(idx);
+                nextBtn.disabled = false;
+                updateProgress();
+            }
+
+            function showFeedback(selectedIdx) {
+                const q = questions[currentIndex];
+                const isCorrect = (selectedIdx === q.answer);
+                const correctText = q.options[q.answer];
+
+                feedbackBox.className = 'feedback-box show';
+                if (isCorrect) {
+                    feedbackBox.classList.add('correct-fb');
+                    fbIcon.textContent = '✅';
+                    feedbackMessage.textContent = ` Correct! Well done.`;
+                } else {
+                    feedbackBox.classList.add('wrong-fb');
+                    fbIcon.textContent = '❌';
+                    feedbackMessage.textContent = ` Not quite. The correct answer is: "${correctText}"`;
+                }
+            }
+
+            function goToNext() {
+                if (quizCompleted) return;
+                // If last question, finish quiz
+                if (currentIndex === totalQ - 1) {
+                    finishQuiz();
+                    return;
+                }
+                currentIndex++;
+                renderQuestion();
+            }
+
+            function finishQuiz() {
+                quizCompleted = true;
+                questionArea.style.display = 'none';
+                resultScreen.style.display = 'block';
+
+                const correct = userAnswers.filter((a, i) => a === questions[i].answer).length;
+                const wrong = totalQ - correct;
+                const pct = Math.round((correct / totalQ) * 100);
+
+                finalScore.textContent = correct;
+                totalQuestionsLabel.textContent = totalQ;
+                statCorrect.textContent = correct;
+                statWrong.textContent = wrong;
+                statPercent.textContent = pct + '%';
+
+                let msg = '';
+                let icon = '🎉';
+                if (pct === 100) { msg = 'Perfect score! You\'re an ICT expert!';
+                    icon = '🏆'; } else if (pct >= 80) { msg = 'Excellent! You really know your ICT concepts!';
+                    icon = '🌟'; } else if (pct >= 60) { msg = 'Good job! Review a few topics to master them.';
+                    icon = '📚'; } else if (pct >= 40) { msg = 'Keep studying! Go over the handout again.';
+                    icon = '📖'; } else { msg = 'Don\'t give up! Read the handout and try again.';
+                    icon = '💪'; }
+
+                document.querySelector('.result-screen .big-icon').textContent = icon;
+                resultMessage.textContent = msg;
+                scoreDisplay.textContent = `${correct} / ${totalQ}`;
+            }
+
+            function resetQuiz() {
+                currentIndex = 0;
+                userAnswers = new Array(questions.length).fill(null);
+                quizCompleted = false;
+                questionArea.style.display = 'block';
+                resultScreen.style.display = 'none';
+                feedbackBox.classList.remove('show', 'correct-fb', 'wrong-fb');
+                nextBtn.disabled = true;
+                renderQuestion();
+                updateProgress();
+                // reset scroll
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // ---------- EVENT BINDING ----------
+            nextBtn.addEventListener('click', goToNext);
+            resetBtn.addEventListener('click', resetQuiz);
+            retryBtn.addEventListener('click', resetQuiz);
+
+            // ---------- INIT ----------
+            renderQuestion();
+            updateProgress();
+
+            // keyboard support: Enter on next btn
+            nextBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter') goToNext(); });
+
+        })();
+    </script>
+
+</body>
+</html>
